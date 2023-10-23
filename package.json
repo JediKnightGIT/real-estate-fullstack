@@ -2,11 +2,12 @@
   "name": "real-estate-fullstack",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "nodemon api/index.js",
-    "start": "node api/index.js"
+    "dev": "nodemon api/index.ts",
+    "start": "node api/dist/index.js",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -20,12 +21,15 @@
   },
   "homepage": "https://github.com/JediKnightGIT/real-estate-fullstack#readme",
   "dependencies": {
-    "@types/express": "^4.17.20",
     "express": "^4.18.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/node": "^20.8.7",
+    "nodemon": "^3.0.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.2"
   }
 }
