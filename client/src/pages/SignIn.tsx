@@ -1,7 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-export default function SignIn() {
+const SignIn: React.FC = () => {
   return (
     <div>SignIn</div>
-  )
-}
+  );
+};
+
+export default SignIn;
