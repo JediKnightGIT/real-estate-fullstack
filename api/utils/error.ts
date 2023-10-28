@@ -1,12 +1,6 @@
-interface CustomError {
-  statusCode: number;
-  message: string;
-}
+import { CustomError } from '../index.js';
 
-export const errorHandler = (
-  statusCode: number,
-  message: string
-): CustomError => {
+export const errorHandler = (statusCode: number, message: string): CustomError => {
   return {
     statusCode,
     message,

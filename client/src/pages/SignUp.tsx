@@ -1,10 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-type CustomError = {
-  message: string;
-};
-
 const SignUp: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
   const [error, setError] = React.useState<string | null>(null);
@@ -30,7 +26,7 @@ const SignUp: React.FC = () => {
       const data = await response.json();
       console.log(data);
 
-      if (data.success === false) {
+      if (!data.success) {
         setLoading(false);
         setError(data.message);
         return;
@@ -40,7 +36,7 @@ const SignUp: React.FC = () => {
       navigate('/sign-in');
     } catch (error: unknown) {
       setLoading(false);
-      setError((error as CustomError).message);
+      setError((error as Record<string, string>).message);
     }
   };
 
