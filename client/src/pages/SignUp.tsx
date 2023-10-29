@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { DataTypeWithMiddleware } from '../App';
+
 const SignUp: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
   const [error, setError] = React.useState<string | null>(null);
@@ -13,7 +15,6 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       setLoading(true);
       const response = await fetch('/api/auth/sign-up', {
@@ -23,10 +24,9 @@ const SignUp: React.FC = () => {
         },
         body: JSON.stringify(formData),
       });
-      const data = await response.json();
+      const data: DataTypeWithMiddleware = await response.json();
       console.log(data);
-
-      if (!data.success) {
+      if (data.success === false) {
         setLoading(false);
         setError(data.message);
         return;
