@@ -7,21 +7,6 @@ import Profile from './pages/Profile';
 import About from './pages/About';
 import Header from './components/Header';
 
-type DataType = {
-  _id: string;
-  username: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-};
-
-export type DataTypeWithMiddleware = DataType & {
-  success: boolean;
-  statusCode: number;
-  message: string;
-};
-
 function App() {
   return (
     <BrowserRouter>

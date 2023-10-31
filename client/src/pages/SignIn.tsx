@@ -1,13 +1,16 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { DataTypeWithMiddleware } from '../App';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { signInStart, signInSuccess,signInFailure } from '../redux/user/userSlice';
+import { UserTypeWithMiddleware } from '../redux/user/types';
+import { RootState } from '../redux/store';
 
 const SignIn: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
-  const [error, setError] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const { loading, error } = useAppSelector((state: RootState) => state.user);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -16,7 +19,7 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const response = await fetch('/api/auth/sign-in', {
         method: 'POST',
         headers: {
@@ -24,19 +27,16 @@ const SignIn: React.FC = () => {
         },
         body: JSON.stringify(formData),
       });
-      const data: DataTypeWithMiddleware = await response.json();
+      const data: UserTypeWithMiddleware = await response.json();
       console.log(data);
       if (data.success === false) {
-        setLoading(false);
-        setError(data.message);
+        dispatch(signInFailure(data.message));
         return;
       }
-      setLoading(false);
-      setError(null);
+      dispatch(signInSuccess(data));
       navigate('/');
     } catch (error: unknown) {
-      setLoading(false);
-      setError((error as Record<string, string>).message);
+      dispatch(signInFailure((error as Record<string, string>).message));
     }
   };
 
