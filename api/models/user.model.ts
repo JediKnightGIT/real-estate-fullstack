@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    avatar: {
+      type: String,
+      default: 'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/default-avatar.png'
+    }
   },
   { timestamps: true },
 );
