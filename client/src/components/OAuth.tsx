@@ -5,6 +5,7 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { app } from '../firebase';
 import { useAppDispatch } from '../redux/hooks';
 import { signInSuccess } from '../redux/user/userSlice';
+import { UserType } from '../redux/user/types';
 
 const OAuth: React.FC = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const OAuth: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      const data: UserType = await response.json();
       dispatch(signInSuccess(data));
       navigate('/');
     } catch (error) {

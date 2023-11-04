@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 
 import User, { IUser } from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 
-export const signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const signup = async (
+  req: Request<{}, {}, Record<string, string>>,
+  res: Response,
+  next: NextFunction,
+) => {
   const { username, email, password } = req.body;
   const hashedPassword: string = bcryptjs.hashSync(password, 10);
 
@@ -18,12 +22,16 @@ export const signup = async (req: Request, res: Response, next: NextFunction): P
     const newUser = new User(userData);
     await newUser.save();
     res.status(201).json('User created successfully!');
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };
 
-export const signin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const signin = async (
+  req: Request<{}, {}, Record<string, string>>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const { email, password } = req.body;
 
   try {
@@ -38,42 +46,42 @@ export const signin = async (req: Request, res: Response, next: NextFunction): P
       return;
     }
 
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const token: string = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET as Secret);
     const { password: pass, ...rest } = validUser._doc;
 
     res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
-  } catch (error: any) {
+  } catch (error: unknown) {
     next(error);
   }
 };
 
-export const google = async (req, res, next) => {
+export const google = async (
+  req: Request<{}, {}, Record<string, string>>,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const user = await User.findOne({ email: req.body.email });
 
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token: string = jwt.sign({ id: user._id }, process.env.JWT_SECRET as Secret);
       const { password: pass, ...rest } = user._doc;
-      res
-        .cookie('access_token', token, { httpOnly: true })
-        .status(200)
-        .json(rest);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
     } else {
-      const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
       const newUser = new User({
-        username: req.body.name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4),
+        username:
+          req.body.name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4),
         email: req.body.email,
         password: hashedPassword,
-        avatar: req.body.photo
-      })
+        avatar: req.body.photo,
+      });
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const token: string = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as Secret);
       const { password: pass, ...rest } = newUser._doc;
-      res
-        .cookie('access_token', token, { httpOnly: true })
-        .status(200)
-        .json(rest);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
     }
   } catch (error) {
     next(error);

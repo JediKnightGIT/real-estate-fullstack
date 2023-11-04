@@ -3,6 +3,7 @@ import mongoose, { Document, Model } from 'mongoose';
 export interface IUser {
   _id?: string;
   _doc?: any;
+  __v?: number;
   username: string;
   email: string;
   password: string;
@@ -28,8 +29,9 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: 'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/default-avatar.png'
-    }
+      default:
+        'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/default-avatar.png',
+    },
   },
   { timestamps: true },
 );
