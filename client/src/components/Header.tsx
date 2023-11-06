@@ -34,7 +34,7 @@ const Header: React.FC = () => {
           </Link>
           <Link to="/profile">
             {currentUser ? (
-              <img src={currentUser.avatar} alt={currentUser.username + ' avatar'} className='rounded-full w-7 h-7 object-cover' />
+              <img src={currentUser.avatar} alt={currentUser.username + '\'s avatar'} className='rounded-full w-7 h-7 object-cover' />
             ) : (
               <li className="hidden sm:inline text-slate-700 hover:underline">Sign in</li>
             )}
