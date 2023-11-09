@@ -1,18 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
-import { useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { RootState } from '../redux/store';
 import { app } from '../firebase';
+import { updateUserFailure, updateUserStart, updateUserSuccess } from '../redux/user/userSlice';
+import { UserTypeWithMiddleware } from '../redux/user/types';
 
 const Profile: React.FC = () => {
-  const { currentUser } = useAppSelector((state: RootState) => state.user);
+  const { currentUser, loading, error } = useAppSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [fileError, setFileError] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   useEffect(() => {
     const handleFileUpload = async (file: File) => {
@@ -45,10 +49,38 @@ const Profile: React.FC = () => {
     }
   }, [file]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const response = await fetch(`/api/user/update/${currentUser?._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      const data: UserTypeWithMiddleware = await response.json();
+      console.log(data);
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+    } catch (error) {
+      dispatch(updateUserFailure((error as Record<string, string>).message));
+    }
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           onChange={(e) => setFile(e.target.files?.[0])}
           type="file"
@@ -58,8 +90,8 @@ const Profile: React.FC = () => {
         />
         <img
           onClick={() => fileRef.current?.click()}
-          src={formData?.avatar || currentUser?.avatar}
-          alt={currentUser?.username + 'photo'}
+          src={formData.avatar || currentUser?.avatar}
+          alt={currentUser?.username + "'s photo"}
           className="rounded-full w-24 h-24 object-cover cursor-pointer self-center mt-2"
         />
         <p className="text-sm self-center">
@@ -73,18 +105,34 @@ const Profile: React.FC = () => {
             ''
           )}
         </p>
-        <input type="text" id="username" placeholder="username" className="border p-3 rounded-lg" />
-        <input type="email" id="email" placeholder="email" className="border p-3 rounded-lg" />
+        <input
+          type="text"
+          onChange={handleChange}
+          id="username"
+          placeholder="username"
+          defaultValue={currentUser?.username}
+          className="border p-3 rounded-lg"
+        />
+        <input
+          type="email"
+          onChange={handleChange}
+          id="email"
+          placeholder="email"
+          defaultValue={currentUser?.email}
+          className="border p-3 rounded-lg"
+        />
         <input
           type="password"
+          onChange={handleChange}
           id="password"
           placeholder="password"
           className="border p-3 rounded-lg"
         />
         <button
           type="submit"
+          disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
-          Update
+          {loading ? 'Loading...' : 'Update'}
         </button>
       </form>
 
@@ -92,6 +140,9 @@ const Profile: React.FC = () => {
         <span className="text-red-700 cursor-pointer">Delete account</span>
         <span className="text-red-700 cursor-pointer">Sign out</span>
       </div>
+
+      <p className="text-red-700 mt-5">{error ? error : ''}</p>
+      <p className="text-green-700 mt-5">{updateSuccess ? 'User is updated successfully!' : ''}</p>
     </div>
   );
 };
