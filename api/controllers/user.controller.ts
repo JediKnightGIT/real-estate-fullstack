@@ -1,21 +1,18 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import bcryptjs from 'bcryptjs';
 
 import { errorHandler } from '../utils/error';
 import User from '../models/user.model.js';
+import { CustomRequest } from '../utils/verifyUser.js';
 
-export const test = (req: Request, res: Response): void => {
-  res.json({
-    message: 'Hello World!',
-  });
-};
+
 
 export const updateUser = async (
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction,
 ) => {
-  if (req.user.id !== req.params.id)
+  if (req.user?.id !== req.params.id)
     return next(errorHandler(401, 'You can update only your account!'));
 
     try {
@@ -35,7 +32,7 @@ export const updateUser = async (
       const { password, ...rest } = updateUser?._doc
 
       res.status(200).json(rest)
-    } catch (error) {
+    } catch (error: unknown) {
       next(error)
     }
 };
