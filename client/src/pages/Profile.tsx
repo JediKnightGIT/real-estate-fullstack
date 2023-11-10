@@ -8,6 +8,9 @@ import {
   deleteUserFailure,
   deleteUserStart,
   deleteUserSuccess,
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
   updateUserFailure,
   updateUserStart,
   updateUserSuccess,
@@ -72,7 +75,6 @@ const Profile: React.FC = () => {
         body: JSON.stringify(formData),
       });
       const data: UserTypeWithMiddleware = await response.json();
-      console.log(data);
       if (data.success === false) {
         dispatch(updateUserFailure(data.message));
         return;
@@ -91,7 +93,6 @@ const Profile: React.FC = () => {
         method: 'DELETE',
       });
       const data: UserTypeWithMiddleware = await response.json();
-      console.log(data);
       if (data.success === false) {
         dispatch(deleteUserFailure(data.message));
         return;
@@ -99,6 +100,22 @@ const Profile: React.FC = () => {
       dispatch(deleteUserSuccess());
     } catch (error) {
       dispatch(deleteUserFailure((error as Record<string, string>).message));
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutStart());
+      const response = await fetch('/api/auth/sign-out');
+      const data = await response.json();
+
+      if (data.success === false) {
+        dispatch(signOutFailure(data.message));
+        return;
+      }
+      dispatch(signOutSuccess());
+    } catch (error) {
+      dispatch(signOutFailure((error as Record<string, string>).message));
     }
   };
 
@@ -165,7 +182,9 @@ const Profile: React.FC = () => {
         <span onClick={handleDeleteUser} className="text-red-700 cursor-pointer">
           Delete account
         </span>
-        <span className="text-red-700 cursor-pointer">Sign out</span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">
+          Sign out
+        </span>
       </div>
 
       <p className="text-red-700 mt-5">{error ? error : ''}</p>
