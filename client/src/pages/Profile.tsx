@@ -16,6 +16,7 @@ import {
   updateUserSuccess,
 } from '../redux/user/userSlice';
 import { UserTypeWithMiddleware } from '../redux/user/types';
+import { Link } from 'react-router-dom';
 
 const Profile: React.FC = () => {
   const { currentUser, loading, error } = useAppSelector((state: RootState) => state.user);
@@ -176,6 +177,9 @@ const Profile: React.FC = () => {
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
           {loading ? 'Loading...' : 'Update'}
         </button>
+        <Link className='bg-green-700 text-white p-3 rounded-lg uppercase text-center hover:opacity-95' to={'/create-listing'}>
+          Create Listing
+        </Link>
       </form>
 
       <div className="flex justify-between mt-5">
