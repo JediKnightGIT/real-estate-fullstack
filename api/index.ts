@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import userRoute from './routes/user.route.js';
 import authRoute from './routes/auth.route.js';
+import listingRoute from './routes/listing.route.js';
 
 export type CustomError = {
   statusCode: number;
@@ -33,6 +34,7 @@ app.listen(3000, () => {
 
 app.use('/api/user', userRoute);
 app.use('/api/auth', authRoute);
+app.use('/api/listing', listingRoute);
 
 app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
   const statusCode = err.statusCode || 500;
