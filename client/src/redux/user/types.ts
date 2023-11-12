@@ -8,7 +8,27 @@ export type UserType = {
   __v: number;
 };
 
-export type UserTypeWithMiddleware = UserType & {
+export type ListingData = {
+  _id: string;
+  name: string;
+  description: string;
+  address: string;
+  regularPrice: number;
+  discountPrice: number;
+  bathrooms: number;
+  bedrooms: number;
+  furnished: boolean;
+  parking: boolean;
+  type: 'rent' | 'sale';
+  offer: boolean;
+  imageUrls: string[];
+  userRef?: string;
+};
+
+export type UserTypeWithMiddleware = UserType & Middleware;
+export type ListingDataWithMiddleware = ListingData & Middleware;
+
+export type Middleware = {
   success: boolean;
   statusCode: number;
   message: string;
