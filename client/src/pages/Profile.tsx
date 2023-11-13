@@ -30,6 +30,7 @@ const Profile: React.FC = () => {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [showListingsError, setShowListingsError] = useState(false);
   const [listings, setListings] = useState<ListingData[]>([]);
+  const [deleteListingError, setDeleteListingError] = useState(false);
 
   useEffect(() => {
     const handleFileUpload = async (file: File) => {
@@ -137,6 +138,26 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleDeleteListing = async (id: string) => {
+    try {
+      const response = await fetch(`/api/listing/delete/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success === false) {
+        setDeleteListingError(true);
+        return;
+      }
+      setListings((prev) => prev.filter((listing) => listing._id !== id));
+    } catch (error) {
+      setDeleteListingError(true);
+    }
+  };
+
+  const handleEditListing = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -239,8 +260,15 @@ const Profile: React.FC = () => {
               </Link>
 
               <div className="flex flex-col items-center">
-                <button className="text-red-700 uppercase">Delete</button>
-                <button className="text-green-700 uppercase">Edit</button>
+                <button
+                  onClick={() => handleDeleteListing(listing._id)}
+                  className="text-red-700 uppercase">
+                  Delete
+                </button>
+                {deleteListingError && <p className="text-red-700">Error deleting listing!</p>}
+                <button onClick={handleEditListing} className="text-green-700 uppercase">
+                  Edit
+                </button>
               </div>
             </div>
           ))}
