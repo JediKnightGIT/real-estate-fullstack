@@ -1,5 +1,6 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
@@ -14,14 +15,14 @@ export type CustomError = {
 
 dotenv.config();
 
-mongoose
-  .connect(process.env.MONGO || '')
-  .then(() => {
-    console.log('Connected to MongoDB!');
-  })
-  .catch((err: Error) => {
-    console.log(err);
-  });
+// mongoose
+//   .connect(process.env.MONGO || '')
+//   .then(() => {
+//     console.log('Connected to MongoDB!');
+//   })
+//   .catch((err: Error) => {
+//     console.log(err);
+//   });
 
 const app: Application = express();
 
@@ -31,6 +32,13 @@ app.use(cookieParser());
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+
+try {
+  const con = await mongoose.connect(process.env.MONGO_LOCAL || '');
+  console.log('Connected to MongoDB!');
+} catch (error: unknown) {
+  console.error(error);
+}
 
 app.use('/api/user', userRoute);
 app.use('/api/auth', authRoute);
