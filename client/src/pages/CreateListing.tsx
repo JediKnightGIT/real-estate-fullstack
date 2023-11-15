@@ -130,8 +130,7 @@ const CreateListing: React.FC = () => {
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser?._id,
-          // _id: currentUser?._id,
+          userRef: currentUser?._id
         }),
       });
 

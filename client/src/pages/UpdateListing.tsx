@@ -19,7 +19,6 @@ const UpdateListing: React.FC = () => {
   const { currentUser } = useAppSelector((state: RootState) => state.user);
   const [files, setFiles] = React.useState<File[]>();
   const [formData, setFormData] = React.useState<ListingData>({
-    _id: '',
     name: '',
     description: '',
     address: '',
