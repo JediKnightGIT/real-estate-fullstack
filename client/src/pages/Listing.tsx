@@ -9,6 +9,7 @@ import { ListingData, ListingDataWithMiddleware } from '../redux/user/types';
 import { useAppSelector } from '../redux/hooks';
 import { RootState } from '../redux/store';
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking, FaShare } from 'react-icons/fa';
+import Contact from '../components/Contact';
 
 const Listing: React.FC = () => {
   const { currentUser } = useAppSelector((state: RootState) => state.user);
@@ -50,7 +51,7 @@ const Listing: React.FC = () => {
       {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
       {error && <p className="text-center my-7 text-2xl">Something went wrong!</p>}
       {listing && !loading && !error && (
-        <div>
+        <>
           <Swiper navigation>
             {listing.imageUrls.map((url) => (
               <SwiperSlide key={url}>
@@ -128,14 +129,15 @@ const Listing: React.FC = () => {
             </ul>
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button
+                type="button"
                 onClick={() => setContact(true)}
                 className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3">
                 Contact landlord
               </button>
             )}
-            {/* {contact && <Contact listing={listing} />} */}
+            {contact && <Contact listing={listing} />}
           </div>
-        </div>
+        </>
       )}
     </main>
   );
