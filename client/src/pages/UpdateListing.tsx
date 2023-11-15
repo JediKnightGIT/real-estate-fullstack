@@ -5,7 +5,7 @@ import { app } from '../firebase';
 import { ListingData, ListingDataWithMiddleware } from '../redux/user/types';
 import { RootState } from '../redux/store';
 import { useAppSelector } from '../redux/hooks';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // export interface IListing {
 //   _id?: string;
@@ -13,11 +13,13 @@ import { useNavigate } from 'react-router-dom';
 //   __v?: number;
 // }
 
-const CreateListing: React.FC = () => {
+const UpdateListing: React.FC = () => {
   const navigate = useNavigate();
+  const params = useParams();
   const { currentUser } = useAppSelector((state: RootState) => state.user);
   const [files, setFiles] = React.useState<File[]>();
   const [formData, setFormData] = React.useState<ListingData>({
+    _id: '',
     name: '',
     description: '',
     address: '',
@@ -35,6 +37,22 @@ const CreateListing: React.FC = () => {
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchListing = async () => {
+      const id = params.listingId;
+      const response = await fetch(`/api/listing/get/${id}`);
+      const data = await response.json();
+
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+      setFormData(data);
+    };
+
+    fetchListing();
+  }, [params.listingId]);
 
   const handleImagesSubmit = async () => {
     if (files && files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -70,9 +88,9 @@ const CreateListing: React.FC = () => {
 
       uploadTask.on(
         'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
+        () => {
+          // const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          // console.log('Upload is ' + progress + '% done');
         },
         (error) => {
           reject(error);
@@ -123,15 +141,14 @@ const CreateListing: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/listing/create', {
-        method: 'POST',
+      const response = await fetch(`/api/listing/update/${params.listingId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser?._id,
-          // _id: currentUser?._id,
+          userRef: currentUser?._id
         }),
       });
 
@@ -149,7 +166,7 @@ const CreateListing: React.FC = () => {
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-7">Create a listing</h1>
+      <h1 className="text-3xl font-semibold text-center my-7">Update a listing</h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
           <input
@@ -343,7 +360,7 @@ const CreateListing: React.FC = () => {
             type="submit"
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
-            {loading ? 'Creating...' : 'Create Listing'}
+            {loading ? 'Updating...' : 'Update Listing'}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
@@ -352,4 +369,4 @@ const CreateListing: React.FC = () => {
   );
 };
 
-export default CreateListing;
+export default UpdateListing;

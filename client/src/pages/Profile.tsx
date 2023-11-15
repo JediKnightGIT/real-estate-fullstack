@@ -138,7 +138,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleDeleteListing = async (id: string) => {
+  const handleDeleteListing = async (id?: string) => {
     try {
       const response = await fetch(`/api/listing/delete/${id}`, {
         method: 'DELETE',
@@ -154,9 +154,9 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleEditListing = (e: React.MouseEvent) => {
-    e.preventDefault();
-  };
+  // const handleEditListing = (e: React.MouseEvent) => {
+  //   e.preventDefault();
+  // };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -266,9 +266,11 @@ const Profile: React.FC = () => {
                   Delete
                 </button>
                 {deleteListingError && <p className="text-red-700">Error deleting listing!</p>}
-                <button onClick={handleEditListing} className="text-green-700 uppercase">
-                  Edit
-                </button>
+                <Link to={`/update-listing/${listing._id}`}>
+                  <button  className="text-green-700 uppercase">
+                    Edit
+                  </button>
+                </Link>
               </div>
             </div>
           ))}

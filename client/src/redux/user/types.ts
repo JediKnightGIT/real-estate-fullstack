@@ -9,7 +9,7 @@ export type UserType = {
 };
 
 export type ListingData = {
-  _id: string;
+  _id?: string;
   name: string;
   description: string;
   address: string;
