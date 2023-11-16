@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ListingData } from '../redux/user/types';
 
 type SidebarData = {
   searchTerm: string;
@@ -22,13 +23,52 @@ const Search = () => {
     sort: 'created_at',
     order: 'desc',
   });
+  const [loading, setLoading] = React.useState(false);
+  const [listings, setListings] = React.useState<ListingData | null>(null);
 
-  console.log(sidebarData);
+  console.log(listings);
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get('searchTerm');
-  }, []);
+    const typeFromUrl = urlParams.get('type');
+    const parkingFromUrl = urlParams.get('parking');
+    const furnishedFromUrl = urlParams.get('furnished');
+    const offerFromUrl = urlParams.get('offer');
+    const sortFromUrl = urlParams.get('sort');
+    const orderFromUrl = urlParams.get('order');
+
+    if (
+      searchTermFromUrl ||
+      typeFromUrl ||
+      parkingFromUrl ||
+      furnishedFromUrl ||
+      offerFromUrl ||
+      sortFromUrl ||
+      orderFromUrl
+    ) {
+      setSidebarData({
+        searchTerm: searchTermFromUrl || '',
+        type: typeFromUrl || 'all',
+        parking: parkingFromUrl === 'true' ? true : false,
+        furnished: furnishedFromUrl === 'true' ? true : false,
+        offer: offerFromUrl === 'true' ? true : false,
+        sort: sortFromUrl || 'created_at',
+        order: orderFromUrl || 'desc',
+      });
+    }
+
+    const fetchListings = async () => {
+      setLoading(true);
+      const searchQuery = urlParams.toString();
+      const response = await fetch(`/api/listing/get?${searchQuery}`);
+      const data = await response.json();
+      setListings(data);
+      setLoading(false);
+    };
+
+    fetchListings();
+  }, [location.search]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>,
@@ -172,7 +212,7 @@ const Search = () => {
             </select>
           </div>
           <button className="bg-slate-700 rounded-lg uppercase text-white p-3 hover:opacity-95">
-            Search
+            {loading ? 'Loading...' : 'Search'}
           </button>
         </form>
       </div>
