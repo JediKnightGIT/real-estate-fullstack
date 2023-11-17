@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import Listing from '../models/listing.model.js';
 import { CustomRequest } from '../utils/verifyUser.js';
 import { errorHandler } from '../utils/error.js';
+import { SortOrder } from 'mongoose';
 
 export const createListing = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -91,7 +92,7 @@ export const getListings = async (req: CustomRequest, res: Response, next: NextF
     }
 
     const searchTerm = req.query.searchTerm || '';
-    const sort = req.query.sort as string || 'createdAt';
+    const sort = (req.query.sort as string) || 'createdAt';
     const order = req.query.order || 'desc';
 
     const query = {
@@ -102,7 +103,7 @@ export const getListings = async (req: CustomRequest, res: Response, next: NextF
       type,
     };
 
-    const sortQuery: { [key: string]: any } = { [sort]: order };
+    const sortQuery: { [key: string]: SortOrder } = { [sort]: order as SortOrder };
 
     const listings = await Listing.find(query).sort(sortQuery).limit(limit).skip(startIndex);
     return res.status(200).json(listings);

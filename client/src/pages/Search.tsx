@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import qs from 'qs';
+
 import { ListingData } from '../redux/user/types';
+import ListingItem from '../components/ListingItem';
 
 type SidebarData = {
   searchTerm: string;
@@ -24,19 +27,22 @@ const Search = () => {
     order: 'desc',
   });
   const [loading, setLoading] = React.useState(false);
-  const [listings, setListings] = React.useState<ListingData | null>(null);
+  const [listings, setListings] = React.useState<ListingData[] | null>(null);
 
   console.log(listings);
 
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const searchTermFromUrl = urlParams.get('searchTerm');
-    const typeFromUrl = urlParams.get('type');
-    const parkingFromUrl = urlParams.get('parking');
-    const furnishedFromUrl = urlParams.get('furnished');
-    const offerFromUrl = urlParams.get('offer');
-    const sortFromUrl = urlParams.get('sort');
-    const orderFromUrl = urlParams.get('order');
+    const urlParams = qs.parse(location.search, { ignoreQueryPrefix: true });
+
+    const {
+      searchTerm: searchTermFromUrl,
+      type: typeFromUrl,
+      parking: parkingFromUrl,
+      furnished: furnishedFromUrl,
+      offer: offerFromUrl,
+      sort: sortFromUrl,
+      order: orderFromUrl,
+    } = urlParams;
 
     if (
       searchTermFromUrl ||
@@ -48,19 +54,19 @@ const Search = () => {
       orderFromUrl
     ) {
       setSidebarData({
-        searchTerm: searchTermFromUrl || '',
-        type: typeFromUrl || 'all',
+        searchTerm: (searchTermFromUrl as string) || '',
+        type: (typeFromUrl as string) || 'all',
         parking: parkingFromUrl === 'true' ? true : false,
         furnished: furnishedFromUrl === 'true' ? true : false,
         offer: offerFromUrl === 'true' ? true : false,
-        sort: sortFromUrl || 'created_at',
-        order: orderFromUrl || 'desc',
+        sort: (sortFromUrl as string) || 'created_at',
+        order: (orderFromUrl as string) || 'desc',
       });
     }
 
     const fetchListings = async () => {
       setLoading(true);
-      const searchQuery = urlParams.toString();
+      const searchQuery = qs.stringify(urlParams);
       const response = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await response.json();
       setListings(data);
@@ -102,15 +108,15 @@ const Search = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const urlParams = new URLSearchParams();
-    urlParams.set('searchTerm', sidebarData.searchTerm);
-    urlParams.set('type', sidebarData.type);
-    urlParams.set('sort', sidebarData.sort);
-    urlParams.set('order', sidebarData.order);
-    urlParams.set('parking', sidebarData.parking.toString());
-    urlParams.set('furnished', sidebarData.furnished.toString());
-    urlParams.set('offer', sidebarData.offer.toString());
-    const searchQuery = urlParams.toString();
+    const searchQuery = qs.stringify({
+      searchTerm: sidebarData.searchTerm,
+      type: sidebarData.type,
+      sort: sidebarData.sort,
+      order: sidebarData.order,
+      parking: sidebarData.parking.toString(),
+      furnished: sidebarData.furnished.toString(),
+      offer: sidebarData.offer.toString(),
+    });
     navigate(`/search?${searchQuery}`);
   };
 
@@ -216,10 +222,19 @@ const Search = () => {
           </button>
         </form>
       </div>
-      <div className="">
+      <div className="flex-1">
         <h1 className="text-3xl font-semibold border-b mt-5 p-3 text-slate-700">
           Listing results:
         </h1>
+        <div className="p-7 flex flex-wrap gap-4">
+          {!loading && listings?.length === 0 && (
+            <p className="text-slate-700 text-xl">No listings found!</p>
+          )}
+          {loading && <p className="text-slate-700 text-xl text-center w-full">Loading...</p>}
+          {!loading && listings?.map((listing) => {
+            return <ListingItem key={listing._id} listing={listing} />;
+          })}
+        </div>
       </div>
     </div>
   );

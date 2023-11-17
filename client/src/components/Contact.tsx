@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { ListingData, UserTypeWithMiddleware } from '../redux/user/types';
 
-type ContactTypeProps = {
+export type ContactTypeProps = {
   listing: ListingData;
 };
 

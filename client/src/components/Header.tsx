@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+import qs from 'qs';
 
 import { useAppSelector } from '../redux/hooks';
 import { RootState } from '../redux/store';
@@ -12,15 +13,15 @@ const Header: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('searchTerm', searchTerm);
-    const searchQuery = urlParams.toString();
+    const urlParams = qs.parse(location.search, { ignoreQueryPrefix: true });
+    urlParams.searchTerm = searchTerm;
+    const searchQuery = qs.stringify(urlParams);
     navigate(`/search?${searchQuery}`);
   };
 
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const searchTermFromUrl = urlParams.get('searchTerm');
+    const urlParams = qs.parse(location.search, { ignoreQueryPrefix: true });
+    const searchTermFromUrl = urlParams.searchTerm as string;
     if (searchTermFromUrl) {
       setSearchTerm(searchTermFromUrl);
     }
