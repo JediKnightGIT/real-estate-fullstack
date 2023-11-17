@@ -29,7 +29,7 @@ const Search = () => {
   const [loading, setLoading] = React.useState(false);
   const [listings, setListings] = React.useState<ListingData[] | null>(null);
 
-  console.log(listings);
+  // console.log(listings);
 
   React.useEffect(() => {
     const urlParams = qs.parse(location.search, { ignoreQueryPrefix: true });
