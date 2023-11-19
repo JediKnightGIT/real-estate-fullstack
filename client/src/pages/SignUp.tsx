@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { DataTypeWithMiddleware } from '../App';
 import OAuth from '../components/OAuth';
+import { UserTypeWithMiddleware } from '../redux/user/types';
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
@@ -25,7 +25,7 @@ const SignUp: React.FC = () => {
         },
         body: JSON.stringify(formData),
       });
-      const data: DataTypeWithMiddleware = await response.json();
+      const data: UserTypeWithMiddleware = await response.json();
       console.log(data);
       if (data.success === false) {
         setLoading(false);
