@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
+import { SortOrder } from 'mongoose';
 
 import Listing from '../models/listing.model.js';
 import { CustomRequest } from '../utils/verifyUser.js';
 import { errorHandler } from '../utils/error.js';
-import { SortOrder } from 'mongoose';
 
 export const createListing = async (req: Request, res: Response, next: NextFunction) => {
   try {
