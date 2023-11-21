@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { userAPI } from '../api/api';
 import { ListingData, UserTypeWithMiddleware } from '../redux/user/types';
 
 export type ContactTypeProps = {
@@ -14,9 +15,12 @@ const Contact: React.FC<ContactTypeProps> = ({ listing }) => {
   React.useEffect(() => {
     const fetchLandlord = async () => {
       try {
-        const response = await fetch(`/api/user/${listing.userRef}`);
-        const data = await response.json();
-        setLandlord(data);
+        // const response = await fetch(`/api/user/${listing.userRef}`);
+        // const data: UserTypeWithMiddleware = await response.json();
+        if (listing.userRef) {
+          const response = await userAPI.getLandlord(listing.userRef);
+          setLandlord(response);
+        }
       } catch (error) {
         console.log(error);
       }

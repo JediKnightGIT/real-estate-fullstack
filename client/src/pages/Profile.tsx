@@ -17,6 +17,7 @@ import {
 } from '../redux/user/userSlice';
 import { ListingData, UserTypeWithMiddleware } from '../redux/user/types';
 import { Link } from 'react-router-dom';
+import { userAPI } from '../api/api';
 
 const Profile: React.FC = () => {
   const { currentUser, loading, error } = useAppSelector((state: RootState) => state.user);
@@ -71,20 +72,23 @@ const Profile: React.FC = () => {
     e.preventDefault();
     try {
       dispatch(updateUserStart());
-      const response = await fetch(`/api/user/update/${currentUser?._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data: UserTypeWithMiddleware = await response.json();
-      if (data.success === false) {
-        dispatch(updateUserFailure(data.message));
-        return;
+      // const response = await fetch(`/api/user/update/${currentUser?._id}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formData),
+      // });
+      // const data: UserTypeWithMiddleware = await response.json();
+      if (currentUser) {
+        const response = await userAPI.updateUser(currentUser._id, formData);
+        if (response.success === false) {
+          dispatch(updateUserFailure(response.message));
+          return;
+        }
+        dispatch(updateUserSuccess(response));
+        setUpdateSuccess(true);
       }
-      dispatch(updateUserSuccess(data));
-      setUpdateSuccess(true);
     } catch (error) {
       dispatch(updateUserFailure((error as Record<string, string>).message));
     }
@@ -126,13 +130,12 @@ const Profile: React.FC = () => {
   const handleShowListings = async () => {
     try {
       setShowListingsError(false);
-      const response = await fetch(`/api/user/listings/${currentUser?._id}`);
-      const data = await response.json();
-      if (data.success === false) {
-        setShowListingsError(true);
-        return;
+      // const response = await fetch(`/api/user/listings/${currentUser?._id}`);
+      // const data = await response.json();
+      if (currentUser) {
+        const response = await userAPI.getUserListings(currentUser?._id);
+        setListings(response);
       }
-      setListings(data);
     } catch (error) {
       setShowListingsError(true);
     }
@@ -140,15 +143,19 @@ const Profile: React.FC = () => {
 
   const handleDeleteListing = async (id?: string) => {
     try {
-      const response = await fetch(`/api/listing/delete/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
-      if (data.success === false) {
-        setDeleteListingError(true);
-        return;
+      // const response = await fetch(`/api/listing/delete/${id}`, {
+      //   method: 'DELETE',
+      // });
+      // const data = await response.json();
+
+      if (id) {
+        const response = await userAPI.deleteUser(id);
+        if (response.success === false) {
+          setDeleteListingError(true);
+          return;
+        }
+        setListings((prev) => prev.filter((listing) => listing._id !== id));
       }
-      setListings((prev) => prev.filter((listing) => listing._id !== id));
     } catch (error) {
       setDeleteListingError(true);
     }
@@ -267,9 +274,7 @@ const Profile: React.FC = () => {
                 </button>
                 {deleteListingError && <p className="text-red-700">Error deleting listing!</p>}
                 <Link to={`/update-listing/${listing._id}`}>
-                  <button  className="text-green-700 uppercase">
-                    Edit
-                  </button>
+                  <button className="text-green-700 uppercase">Edit</button>
                 </Link>
               </div>
             </div>
