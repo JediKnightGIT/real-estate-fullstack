@@ -2,10 +2,10 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { signInStart, signInSuccess,signInFailure } from '../redux/user/userSlice';
-import { UserTypeWithMiddleware } from '../redux/user/types';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 import { RootState } from '../redux/store';
 import OAuth from '../components/OAuth';
+import { authAPI } from '../api/api';
 
 const SignIn: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
@@ -21,20 +21,24 @@ const SignIn: React.FC = () => {
     e.preventDefault();
     try {
       dispatch(signInStart());
-      const response = await fetch('/api/auth/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data: UserTypeWithMiddleware = await response.json();
-      console.log(data);
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+      // const response = await fetch('/api/auth/sign-in', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formData),
+      // });
+      // const data: UserTypeWithMiddleware = await response.json();
+      // console.log(data);
+
+      const response = await authAPI.signIn(formData);
+      console.log(response);
+
+      if (response.success === false) {
+        dispatch(signInFailure(response.message));
         return;
       }
-      dispatch(signInSuccess(data));
+      dispatch(signInSuccess(response));
       navigate('/');
     } catch (error: unknown) {
       dispatch(signInFailure((error as Record<string, string>).message));

@@ -15,9 +15,9 @@ import {
   updateUserStart,
   updateUserSuccess,
 } from '../redux/user/userSlice';
-import { ListingData, UserTypeWithMiddleware } from '../redux/user/types';
+import { ListingData } from '../redux/user/types';
 import { Link } from 'react-router-dom';
-import { userAPI } from '../api/api';
+import { authAPI, listingAPI, userAPI } from '../api/api';
 
 const Profile: React.FC = () => {
   const { currentUser, loading, error } = useAppSelector((state: RootState) => state.user);
@@ -97,12 +97,14 @@ const Profile: React.FC = () => {
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart());
-      const response = await fetch(`/api/user/delete/${currentUser?._id}`, {
-        method: 'DELETE',
-      });
-      const data: UserTypeWithMiddleware = await response.json();
-      if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
+      // const response = await fetch(`/api/user/delete/${currentUser?._id}`, {
+      //   method: 'DELETE',
+      // });
+      // const data: UserTypeWithMiddleware = await response.json();
+
+      const response = await userAPI.deleteUser(currentUser?._id);
+      if (response.success === false) {
+        dispatch(deleteUserFailure(response.message));
         return;
       }
       dispatch(deleteUserSuccess());
@@ -114,11 +116,13 @@ const Profile: React.FC = () => {
   const handleSignOut = async () => {
     try {
       dispatch(signOutStart());
-      const response = await fetch('/api/auth/sign-out');
-      const data = await response.json();
+      // const response = await fetch('/api/auth/sign-out');
+      // const data = await response.json();
 
-      if (data.success === false) {
-        dispatch(signOutFailure(data.message));
+      const response = await authAPI.signOut();
+
+      if (response.success === false) {
+        dispatch(signOutFailure(response.message));
         return;
       }
       dispatch(signOutSuccess());
@@ -148,22 +152,16 @@ const Profile: React.FC = () => {
       // });
       // const data = await response.json();
 
-      if (id) {
-        const response = await userAPI.deleteUser(id);
-        if (response.success === false) {
-          setDeleteListingError(true);
-          return;
-        }
-        setListings((prev) => prev.filter((listing) => listing._id !== id));
+      const response = await listingAPI.deleteListing(id);
+      if (response.success === false) {
+        setDeleteListingError(true);
+        return;
       }
+      setListings((prev) => prev.filter((listing) => listing._id !== id));
     } catch (error) {
       setDeleteListingError(true);
     }
   };
-
-  // const handleEditListing = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  // };
 
   return (
     <div className="p-3 max-w-lg mx-auto">

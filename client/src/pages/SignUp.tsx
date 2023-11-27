@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import OAuth from '../components/OAuth';
-import { UserTypeWithMiddleware } from '../redux/user/types';
+import { authAPI } from '../api/api';
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = React.useState<Record<string, string>>({});
@@ -16,24 +16,22 @@ const SignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.username || !formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return;
-    }
     try {
       setLoading(true);
-      const response = await fetch('/api/auth/sign-up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data: UserTypeWithMiddleware = await response.json();
-      console.log(data);
-      if (data.success === false) {
+      // const response = await fetch('/api/auth/sign-up', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formData),
+      // });
+      // const data: UserTypeWithMiddleware = await response.json();
+
+      const response = await authAPI.signUp(formData);
+      console.log(response);
+      if (response.success === false) {
         setLoading(false);
-        setError(data.message);
+        setError(response.message);
         return;
       }
       setLoading(false);

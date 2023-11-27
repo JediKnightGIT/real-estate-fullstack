@@ -2,10 +2,11 @@ import React from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
 import { app } from '../firebase';
-import { ListingData, ListingDataWithMiddleware } from '../redux/user/types';
+import { ListingData } from '../redux/user/types';
 import { RootState } from '../redux/store';
 import { useAppSelector } from '../redux/hooks';
 import { useNavigate } from 'react-router-dom';
+import { listingAPI } from '../api/api';
 
 // export interface IListing {
 //   _id?: string;
@@ -123,23 +124,29 @@ const CreateListing: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/listing/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          userRef: currentUser?._id
-        }),
+      // const response = await fetch('/api/listing/create', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     ...formData,
+      //     userRef: currentUser?._id
+      //   }),
+      // });
+
+      // const data: ListingDataWithMiddleware = await response.json();
+
+      const response = await listingAPI.createListing({
+        ...formData,
+        userRef: currentUser?._id,
       });
 
-      const data: ListingDataWithMiddleware = await response.json();
       setLoading(false);
-      if (data.success === false) {
-        setError(data.message);
+      if (response.success === false) {
+        setError(response.message);
       }
-      navigate(`/listing/${data._id}`);
+      navigate(`/listing/${response._id}`);
     } catch (error) {
       setError((error as Record<string, string>).message);
       setLoading(false);

@@ -4,6 +4,7 @@ import qs from 'qs';
 
 import { ListingData } from '../redux/user/types';
 import ListingItem from '../components/ListingItem';
+import { listingAPI } from '../api/api';
 
 type SidebarData = {
   searchTerm: string;
@@ -69,12 +70,15 @@ const Search = () => {
       setLoading(true);
       setShowMore(false)
       const searchQuery = qs.stringify(urlParams);
-      const response = await fetch(`/api/listing/get?${searchQuery}`);
-      const data = await response.json();
-      console.log(data)
-      data.length > 8 ? setShowMore(true) : setShowMore(false);
+      // const response = await fetch(`/api/listing/get?${searchQuery}`);
+      // const data = await response.json();
+      // console.log(data)
 
-      setListings(data);
+      const response = await listingAPI.search(searchQuery);
+
+      response.length > 8 ? setShowMore(true) : setShowMore(false);
+
+      setListings(response);
       setLoading(false);
     };
 
@@ -133,12 +137,14 @@ const Search = () => {
       startIndex,
     });
 
-    const response = await fetch(`/api/listing/get?${searchQuery}`);
-    const data: ListingData[] = await response.json();
-    if (data.length < 9) {
+    // const response = await fetch(`/api/listing/get?${searchQuery}`);
+    // const data: ListingData[] = await response.json();
+
+    const response = await listingAPI.search(searchQuery);
+    if (response.length < 9) {
       setShowMore(false);
     }
-    setListings([...(listings || []), ...data]);
+    setListings([...(listings || []), ...response]);
   };
 
   return (

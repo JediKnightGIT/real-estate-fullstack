@@ -2,10 +2,11 @@ import React from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
 import { app } from '../firebase';
-import { ListingData, ListingDataWithMiddleware } from '../redux/user/types';
+import { ListingData } from '../redux/user/types';
 import { RootState } from '../redux/store';
 import { useAppSelector } from '../redux/hooks';
 import { useNavigate, useParams } from 'react-router-dom';
+import { listingAPI } from '../api/api';
 
 // export interface IListing {
 //   _id?: string;
@@ -40,14 +41,16 @@ const UpdateListing: React.FC = () => {
   React.useEffect(() => {
     const fetchListing = async () => {
       const id = params.listingId;
-      const response = await fetch(`/api/listing/get/${id}`);
-      const data = await response.json();
+      // const response = await fetch(`/api/listing/get/${id}`);
+      // const data = await response.json();
 
-      if (data.success === false) {
-        console.log(data.message);
+      const response = await listingAPI.getListing(id);
+
+      if (response.success === false) {
+        console.log(response.message);
         return;
       }
-      setFormData(data);
+      setFormData(response);
     };
 
     fetchListing();
@@ -140,23 +143,26 @@ const UpdateListing: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/listing/update/${params.listingId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          userRef: currentUser?._id
-        }),
-      });
+      // const response = await fetch(`/api/listing/update/${params.listingId}`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     ...formData,
+      //     userRef: currentUser?._id
+      //   }),
+      // });
 
-      const data: ListingDataWithMiddleware = await response.json();
+      // const data: ListingDataWithMiddleware = await response.json();
+
+      const response = await listingAPI.updateListing(formData, currentUser?._id);
+
       setLoading(false);
-      if (data.success === false) {
-        setError(data.message);
+      if (response.success === false) {
+        setError(response.message);
       }
-      navigate(`/listing/${data._id}`);
+      navigate(`/listing/${response._id}`);
     } catch (error) {
       setError((error as Record<string, string>).message);
       setLoading(false);
