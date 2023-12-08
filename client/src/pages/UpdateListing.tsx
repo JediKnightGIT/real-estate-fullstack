@@ -38,10 +38,9 @@ const UpdateListing: React.FC = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
-  console.log(formData);
-
   React.useEffect(() => {
     const fetchListing = async () => {
+      setLoading(true);
       const id = params.listingId;
       // const response = await fetch(`/api/listing/get/${id}`);
       // const data = await response.json();
@@ -53,10 +52,20 @@ const UpdateListing: React.FC = () => {
         return;
       }
       setFormData(response);
+
+      if (formData.userRef !== currentUser?._id) {
+        setError('You are not authorized to update this listing.');
+        setLoading(false)
+        return
+      } else {
+        setError(null)
+        setLoading(false)
+        return
+      }
     };
 
     fetchListing();
-  }, [params.listingId]);
+  }, [params.listingId, currentUser?._id, formData.userRef]);
 
   const handleImagesSubmit = async () => {
     if (files && files.length > 0 && files.length + formData.imageUrls.length < 7) {
@@ -157,7 +166,6 @@ const UpdateListing: React.FC = () => {
       // });
 
       // const data: ListingDataWithMiddleware = await response.json();
-
       const response = await listingAPI.updateListing(formData, currentUser?._id);
 
       setLoading(false);
@@ -171,11 +179,11 @@ const UpdateListing: React.FC = () => {
     }
   };
 
-  if (formData && formData.userRef !== currentUser?._id) {
-    return <div>You are not authorized to update this listing.</div>;
-  }
+  if (loading) return <p className='text-center'>Loading...</p>;
 
-  if (!loading && !error) {
+  if (error) return <p className='text-red-500 text-center'>{error}</p>;
+
+  if (!loading && !error && formData.userRef === currentUser?._id) {
     return (
       <main className="p-3 max-w-4xl mx-auto">
         <h1 className="text-3xl font-semibold text-center my-7">Update a listing</h1>
