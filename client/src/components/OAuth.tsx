@@ -16,6 +16,14 @@ const OAuth: React.FC = () => {
       const auth = getAuth(app);
 
       const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+
+      const response = await api.post('/auth/google', {}, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        }
+      })
+
       const response = await fetch('/api/auth/google', {
         method: 'POST',
         headers: {

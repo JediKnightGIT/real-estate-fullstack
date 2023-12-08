@@ -44,6 +44,15 @@ export const authAPI = {
       throw error;
     }
   },
+  async googleAuth(): Promise<UserTypeWithMiddleware> {
+    try {
+      const response = await instance.get('/auth/google');
+      return response.data;
+    } catch (error) {
+      if (axios.isCancel(error)) return Promise.reject(error as Cancel);
+      throw error;
+    }
+  },
 };
 
 export const userAPI = {
