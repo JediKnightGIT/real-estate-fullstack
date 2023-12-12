@@ -5,7 +5,8 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { app } from '../firebase';
 import { useAppDispatch } from '../redux/hooks';
 import { signInSuccess } from '../redux/user/userSlice';
-import { UserType } from '../redux/user/types';
+// import { UserType } from '../redux/user/types';
+import { authAPI } from '../api/api';
 
 const OAuth: React.FC = () => {
   const navigate = useNavigate();
@@ -18,26 +19,21 @@ const OAuth: React.FC = () => {
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
 
-      const response = await api.post('/auth/google', {}, {
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-        }
-      })
+      const response = await authAPI.googleAuth(idToken);
 
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: result.user.displayName,
-          email: result.user.email,
-          photo: result.user.photoURL,
-        }),
-      });
-
-      const data: UserType = await response.json();
-      dispatch(signInSuccess(data));
+      // const response = await fetch('/api/auth/google', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     name: result.user.displayName,
+      //     email: result.user.email,
+      //     photo: result.user.photoURL,
+      //   }),
+      // });
+      // const data: UserType = await response.json();
+      dispatch(signInSuccess(response));
       navigate('/');
     } catch (error) {
       console.log('Could not authorize with Google', error);

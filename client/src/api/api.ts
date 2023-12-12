@@ -1,6 +1,7 @@
 import axios, { Cancel } from 'axios';
 
 import {
+  UserType,
   UserTypeWithMiddleware,
   ListingData,
   ListingDataWithMiddleware,
@@ -44,9 +45,17 @@ export const authAPI = {
       throw error;
     }
   },
-  async googleAuth(): Promise<UserTypeWithMiddleware> {
+  async googleAuth(idToken: string): Promise<UserType> {
     try {
-      const response = await instance.get('/auth/google');
+      const response = await instance.post(
+        '/auth/google',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        },
+      );
       return response.data;
     } catch (error) {
       if (axios.isCancel(error)) return Promise.reject(error as Cancel);
