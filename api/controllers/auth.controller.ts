@@ -4,6 +4,7 @@ import jwt, { Secret } from 'jsonwebtoken';
 import User, { IUser } from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
+import admin from '../firebase/firebase.js';
 
 export const signup = async (
   req: Request<{}, {}, Record<string, string>>,
@@ -74,29 +75,56 @@ export const google = async (
   next: NextFunction,
 ) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const authorizationHeader = req.headers.authorization;
 
-    if (user) {
-      const token: string = jwt.sign({ id: user._id }, process.env.JWT_SECRET as Secret);
-      const { password: pass, ...rest } = user._doc;
-      res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
-    } else {
-      const generatedPassword =
-        Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-      const newUser = new User({
-        username:
-          req.body.name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4),
-        email: req.body.email,
-        password: hashedPassword,
-        avatar: req.body.photo,
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Unauthorized: Missing or invalid Firebase ID token',
       });
-      await newUser.save();
-      const token: string = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as Secret);
-      const { password: pass, ...rest } = newUser._doc;
-      res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
     }
+
+    const idToken = authorizationHeader.split('Bearer ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { email, name, picture } = decodedToken;
+    const userInfo = {
+      email,
+      name,
+      picture,
+    };
+
+    return res.status(200).json({
+      status: 'success',
+      user: userInfo,
+    });
   } catch (error) {
     next(error);
   }
+
+  // try {
+  //   const user = await User.findOne({ email: req.body.email });
+
+  //   if (user) {
+  //     const token: string = jwt.sign({ id: user._id }, process.env.JWT_SECRET as Secret);
+  //     const { password: pass, ...rest } = user._doc;
+  //     res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
+  //   } else {
+  //     const generatedPassword =
+  //       Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+  //     const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+  //     const newUser = new User({
+  //       username:
+  //         req.body.name.split(' ').join('').toLowerCase() + Math.random().toString(36).slice(-4),
+  //       email: req.body.email,
+  //       password: hashedPassword,
+  //       avatar: req.body.photo,
+  //     });
+  //     await newUser.save();
+  //     const token: string = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET as Secret);
+  //     const { password: pass, ...rest } = newUser._doc;
+  //     res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
+  //   }
+  // } catch (error) {
+  //   next(error);
+  // }
 };
