@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import cors from 'cors'
 
 import userRoute from './routes/user.route.js';
 import authRoute from './routes/auth.route.js';
@@ -27,7 +28,13 @@ mongoose
 const __dirname = path.resolve();
 
 const app: Application = express();
+const corsOptions = {
+  origin: "http://localhost:5173",
+  methods: "GET,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
