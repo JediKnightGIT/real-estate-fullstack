@@ -20,6 +20,7 @@ const OAuth: React.FC = () => {
       const idToken = await result.user.getIdToken();
 
       const response = await authAPI.googleAuth(idToken);
+      console.log(response)
 
       // const response = await fetch('/api/auth/google', {
       //   method: 'POST',
