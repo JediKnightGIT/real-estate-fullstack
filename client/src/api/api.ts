@@ -77,6 +77,7 @@ export const userAPI = {
   async getUserListings(id: string): Promise<ListingData[]> {
     try {
       const response = await instance.get(`/user/listings/${id}`);
+      console.log(response)
       return response.data;
     } catch (error) {
       if (axios.isCancel(error)) return Promise.reject(error as Cancel);

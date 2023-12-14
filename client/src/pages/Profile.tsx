@@ -138,6 +138,7 @@ const Profile: React.FC = () => {
       // const data = await response.json();
       if (currentUser) {
         const response = await userAPI.getUserListings(currentUser?._id);
+        console.log(response)
         setListings(response);
       }
     } catch (error) {
