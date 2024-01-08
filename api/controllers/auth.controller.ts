@@ -50,7 +50,11 @@ export const signin = async (
     const token: string = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET as Secret);
     const { password: pass, ...rest } = validUser._doc;
 
-    res.cookie('access_token', token, { httpOnly: true }).status(200).json(rest);
+    res
+      .cookie('access_token', token, { httpOnly: true })
+      .cookie('token_type', 'native', { httpOnly: true })
+      .status(200)
+      .json(rest);
   } catch (error: unknown) {
     next(error);
   }
@@ -63,6 +67,7 @@ export const signout = async (
 ): Promise<void> => {
   try {
     res.clearCookie('access_token');
+    res.clearCookie('token_type');
     res.status(200).json('User has been logged out!');
   } catch (error: unknown) {
     next(error);
@@ -109,7 +114,11 @@ export const google = async (
       });
       await newUser.save();
       const { password: pass, ...rest } = newUser._doc;
-      res.cookie('access_token', idToken, { httpOnly: true }).status(200).json(rest);
+      res
+        .cookie('access_token', idToken, { httpOnly: true })
+        .cookie('token_type', 'google', { httpOnly: true })
+        .status(200)
+        .json(rest);
     }
   } catch (error) {
     next(error);

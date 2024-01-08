@@ -43,6 +43,7 @@ export const deleteUser = async (req: CustomRequest, res: Response, next: NextFu
   try {
     await User.findByIdAndDelete(req.params.id);
     res.clearCookie('access_token');
+    res.clearCookie('token_type');
     res.status(200).json('User has been deleted!');
   } catch (error: unknown) {
     next(error);
@@ -50,8 +51,8 @@ export const deleteUser = async (req: CustomRequest, res: Response, next: NextFu
 };
 
 export const getUserListings = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  console.log('bruh')
   if (req.user?.id === req.params.id) {
+    console.log('getUserListings ', req.user.id)
     try {
       const listings = await Listing.find({ userRef: req.params.id });
       res.status(200).json(listings);
