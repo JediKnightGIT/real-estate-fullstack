@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import admin, { ServiceAccount } from 'firebase-admin';
-import serviceAccount from "../private-key.json";
+import serviceAccount from "../../private-key.json";
 
 dotenv.config();
 
