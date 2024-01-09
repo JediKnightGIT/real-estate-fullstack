@@ -92,16 +92,16 @@ export const google = async (
     const idToken = authorizationHeader.split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { email, name, picture } = decodedToken;
-    const userInfo = {
-      email,
-      name,
-      picture,
-    };
+
     const user = await User.findOne({ email });
 
     if (user) {
       const { password: pass, ...rest } = user._doc;
-      res.cookie('access_token', idToken, { httpOnly: true }).status(200).json(rest);
+      res
+        .cookie('access_token', idToken, { httpOnly: true })
+        .cookie('token_type', 'google', { httpOnly: true })
+        .status(200)
+        .json(rest);
     } else {
       const generatedPassword =
         Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);

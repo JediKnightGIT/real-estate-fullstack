@@ -5,7 +5,6 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { app } from '../firebase';
 import { useAppDispatch } from '../redux/hooks';
 import { signInSuccess } from '../redux/user/userSlice';
-// import { UserType } from '../redux/user/types';
 import { authAPI } from '../api/api';
 
 const OAuth: React.FC = () => {
